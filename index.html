@@ -1,8 +1,126 @@
 <!DOCTYPE html>
-<html>
-<head><title>Test Page</title></head>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>H2R Beast Mode</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      overflow: hidden;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    #container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+    #logo {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 100px;
+      cursor: pointer;
+      z-index: 10;
+    }
+    #message {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      padding: 15px 25px;
+      border-radius: 15px;
+      max-width: 90vw;
+      font-size: 1.3rem;
+      line-height: 1.4;
+      text-align: center;
+      z-index: 10;
+    }
+  </style>
+</head>
 <body>
-<h1>Bike site is working!</h1>
-<p>If you see this, GitHub Pages is working.</p>
+  <div id="container"></div>
+  <img id="logo" src="bike-logo.png" alt="Tap to Unleash the H2R!" />
+  <audio id="roar" src="h2r-exhaust.mp3"></audio>
+  <div id="message">
+    Aapke liye duniya ka sabse fast beast leke aaya hoon wifeyy 💚<br />
+    Aapka sapna, ab mere website pe roar karta hai 🏍️🔥<br />
+    Bas aap khush rahiye, baaki sab hum sambhal lenge 😚<br /><br />
+    We will do a ride togetherr baby girl 🖤<br />
+    (Playing: <em>Teri Meri Kahani</em> 🎶)<br /><br />
+    Are you ready to do roar on bike with your daddy? 😈👑
+  </div>
+
+  <script type="module">
+    import * as THREE from 'https://cdn.skypack.dev/three';
+    import { GLTFLoader } from 'https://cdn.skypack.dev/three/examples/jsm/loaders/GLTFLoader.js';
+    import { DRACOLoader } from 'https://cdn.skypack.dev/three/examples/jsm/loaders/DRACOLoader.js';
+    import { OrbitControls } from 'https://cdn.skypack.dev/three/examples/jsm/controls/OrbitControls.js';
+
+    const container = document.getElementById('container');
+    const roar = document.getElementById('roar');
+    const logo = document.getElementById('logo');
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 1, 5);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    container.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(5, 5, 5);
+    scene.add(light);
+    scene.add(new THREE.AmbientLight(0x404040));
+
+    let model = null;
+
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.4.3/');
+
+    const loader = new GLTFLoader();
+    loader.setDRACOLoader(dracoLoader);
+
+    logo.addEventListener('click', () => {
+      if (!model) {
+        loader.load('h2r-model.glb',
+          (gltf) => {
+            model = gltf.scene;
+            scene.add(model);
+            roar.play();
+          },
+          undefined,
+          (error) => {
+            console.error('Error loading model:', error);
+            alert('Failed to load 3D model.');
+          }
+        );
+      } else {
+        model.visible = !model.visible;
+        if (model.visible) roar.play();
+      }
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (model) model.rotation.y += 0.01;
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
 </body>
 </html>
